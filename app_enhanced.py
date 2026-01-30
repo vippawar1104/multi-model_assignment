@@ -201,16 +201,30 @@ st.markdown('<p class="main-header">🤖 Multi-Modal RAG QA System</p>', unsafe_
 with st.sidebar:
     st.header("⚙️ Configuration")
     
-    # API Key input
+    # API Key status and input
+    st.markdown("**API Key Configuration**")
+    
+    # Show status of existing key (without revealing it)
+    if st.session_state.api_key:
+        key_preview = f"{st.session_state.api_key[:8]}...{st.session_state.api_key[-4:]}" if len(st.session_state.api_key) > 12 else "***"
+        st.success(f"✅ API Key loaded: {key_preview}")
+    else:
+        st.warning("⚠️ No API Key set")
+    
+    st.caption("Enter your own key below (optional)")
     api_key_input = st.text_input(
         "API Key",
-        value=st.session_state.api_key,
+        value="",
         type="password",
-        help="Enter your Groq or OpenAI API key"
+        placeholder="Enter your API key (optional)",
+        help="Leave empty to use the default key from .env file",
+        label_visibility="collapsed"
     )
+    
     if api_key_input:
         st.session_state.api_key = api_key_input
         os.environ['GROQ_API_KEY'] = api_key_input
+        st.rerun()
     
     # Provider selection
     provider = st.selectbox("LLM Provider", ["groq", "openai"])
