@@ -11,6 +11,10 @@ import time
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
+import pickle
+
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent))
 
 # Load environment variables from .env file
 load_dotenv()
@@ -70,6 +74,14 @@ if 'total_queries' not in st.session_state:
     st.session_state.total_queries = 0
 if 'api_key' not in st.session_state:
     st.session_state.api_key = os.environ.get('GROQ_API_KEY', '')
+if 'kg_loaded' not in st.session_state:
+    st.session_state.kg_loaded = False
+if 'kg_graph' not in st.session_state:
+    st.session_state.kg_graph = None
+if 'kg_retriever' not in st.session_state:
+    st.session_state.kg_retriever = None
+if 'use_kg' not in st.session_state:
+    st.session_state.use_kg = True
 
 # Load processed chunks
 @st.cache_data
@@ -83,6 +95,26 @@ def load_processed_chunks():
                 return data
             return data.get('chunks', [])
     return []
+
+# Load knowledge graph
+@st.cache_resource
+def load_knowledge_graph():
+    """Load knowledge graph if available."""
+    kg_file = "data/knowledge_graph/kg.pkl"
+    if os.path.exists(kg_file):
+        try:
+            with open(kg_file, 'rb') as f:
+                graph = pickle.load(f)
+            
+            # Import KG retriever
+            from src.knowledge_graph.kg_retriever import KGRetriever
+            retriever = KGRetriever(graph)
+            
+            return graph, retriever
+        except Exception as e:
+            print(f"Error loading KG: {e}")
+            return None, None
+    return None, None
 
 # Search function
 def search_chunks(query, chunks, top_k=5):
@@ -112,8 +144,8 @@ def search_chunks(query, chunks, top_k=5):
     return [chunk for score, chunk in scored_chunks[:top_k]]
 
 # LLM call function
-def generate_answer(query, context_chunks, api_key, provider="groq"):
-    """Generate answer using LLM."""
+def generate_answer(query, context_chunks, api_key, provider="groq", kg_facts=None):
+    """Generate answer using LLM with optional KG facts."""
     if not api_key:
         return "⚠️ Please provide an API key in the sidebar.", []
     
@@ -122,17 +154,23 @@ def generate_answer(query, context_chunks, api_key, provider="groq"):
         for i, chunk in enumerate(context_chunks[:3])
     ])
     
-    prompt = f"""You are a helpful assistant answering questions based on provided document context.
+    # Add KG facts to context if available
+    kg_context = ""
+    if kg_facts:
+        kg_context = "\n\nKnowledge Graph Facts:\n" + kg_facts
+    
+    prompt = f"""You are a helpful assistant answering questions based on provided document context and knowledge graph facts.
 
 Context from document:
-{context}
+{context}{kg_context}
 
 Question: {query}
 
 Instructions:
-- Answer the question using ONLY the information from the context above
+- Answer the question using ONLY the information from the context and knowledge graph facts above
 - Be direct and confident in your answer
 - If the context contains relevant information, provide a clear answer
+- Cite specific facts from the knowledge graph when relevant
 - Only say "no information available" if the context is truly unrelated to the question
 - Keep your answer concise and accurate
 
@@ -217,6 +255,15 @@ with st.sidebar:
         help="More chunks = more context but slower"
     )
     
+    # Knowledge Graph toggle
+    st.checkbox(
+        "Use Knowledge Graph",
+        value=st.session_state.use_kg,
+        key="kg_toggle",
+        help="Augment answers with facts from knowledge graph",
+        on_change=lambda: setattr(st.session_state, 'use_kg', st.session_state.kg_toggle)
+    )
+    
     st.divider()
     
     # System status
@@ -231,6 +278,19 @@ with st.sidebar:
         st.success(f"✅ {len(st.session_state.chunks)} chunks loaded")
     else:
         st.error("❌ No chunks found")
+    
+    # Load knowledge graph
+    if not st.session_state.kg_loaded:
+        with st.spinner("Loading knowledge graph..."):
+            graph, retriever = load_knowledge_graph()
+            st.session_state.kg_graph = graph
+            st.session_state.kg_retriever = retriever
+            st.session_state.kg_loaded = True
+    
+    if st.session_state.kg_graph:
+        st.success(f"✅ KG: {st.session_state.kg_graph.number_of_nodes()} entities, {st.session_state.kg_graph.number_of_edges()} relations")
+    else:
+        st.warning("⚠️ No knowledge graph (run build_knowledge_graph.py)")
     
     st.metric("Total Queries", st.session_state.total_queries)
     st.metric("Chat History", len(st.session_state.chat_history))
@@ -301,14 +361,23 @@ with col1:
             st.warning("⚠️ Please provide an API key in the sidebar")
         else:
             with st.spinner("🔍 Searching and generating answer..."):
-                # Search
+                # Search chunks
                 results = search_chunks(query, st.session_state.chunks, top_k=top_k)
+                
+                # Get KG facts if enabled
+                kg_facts_text = None
+                kg_facts_list = []
+                if st.session_state.use_kg and st.session_state.kg_retriever:
+                    kg_facts_list = st.session_state.kg_retriever.retrieve_facts(query, top_k=5)
+                    kg_facts_text = st.session_state.kg_retriever.format_facts_for_prompt(kg_facts_list)
                 
                 if not results:
                     st.warning("❌ No relevant chunks found for this query")
                 else:
-                    # Generate answer
-                    answer, latency = generate_answer(query, results, st.session_state.api_key, provider)
+                    # Generate answer with KG facts
+                    answer, latency = generate_answer(
+                        query, results, st.session_state.api_key, provider, kg_facts=kg_facts_text
+                    )
                     
                     # Debug: Show what we got
                     if not answer or answer.strip() == "":
@@ -325,13 +394,20 @@ with col1:
                         'answer': answer,
                         'sources': results[:3],
                         'latency': latency,
-                        'num_chunks': len(results)
+                        'num_chunks': len(results),
+                        'kg_facts': kg_facts_list if kg_facts_list else []
                     })
                     
                     # Display answer
                     st.markdown("### 💡 Answer")
                     # Display in text area for guaranteed visibility
                     st.text_area("Answer", value=answer, height=150, disabled=True, label_visibility="collapsed")
+                    
+                    # Display KG facts if used
+                    if kg_facts_list:
+                        st.markdown("### 🧠 Knowledge Graph Facts Used")
+                        for fact in kg_facts_list[:5]:
+                            st.markdown(f"- **{fact['subject']}** _{fact['relation']}_ **{fact['object']}** (Page {fact.get('page', 'N/A')})")
                     
                     # Metrics
                     met_col1, met_col2, met_col3 = st.columns(3)
@@ -406,6 +482,7 @@ with col2:
     - ✅ Multi-modal ingestion
     - ✅ Smart chunking
     - ✅ Hybrid retrieval
+    - ✅ Knowledge Graph RAG
     - ✅ LLM generation
     - ✅ Source attribution
     - ✅ Performance metrics
