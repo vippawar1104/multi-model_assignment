@@ -1,0 +1,127 @@
+# ============================================
+# Retrieval Configuration
+# ============================================
+
+# ============================================
+# Vector Store Settings
+# ============================================
+vector_store:
+  type: "chromadb"  # chromadb, qdrant, faiss
+  
+  # ChromaDB Configuration
+  chromadb:
+    persist_directory: "data/vector_store/chromadb"
+    collection_name: "multimodal_rag"
+    distance_metric: "cosine"  # cosine, l2, ip
+    
+  # Qdrant Configuration
+  qdrant:
+    path: "data/vector_store/qdrant"
+    collection_name: "multimodal_rag"
+    distance_metric: "Cosine"  # Cosine, Euclidean, Dot
+    vector_size: 384
+    
+  # FAISS Configuration
+  faiss:
+    index_path: "data/vector_store/faiss_index"
+    index_type: "IndexFlatL2"  # IndexFlatL2, IndexIVFFlat, IndexHNSW
+    nlist: 100  # for IVF
+    
+# ============================================
+# Dense Retrieval (Semantic Search)
+# ============================================
+dense_retrieval:
+  enabled: true
+  top_k: 10
+  similarity_threshold: 0.5
+  search_type: "similarity"  # similarity, mmr
+  
+  # MMR (Maximal Marginal Relevance) Settings
+  mmr:
+    fetch_k: 20
+    lambda_mult: 0.5  # diversity vs relevance tradeoff
+
+# ============================================
+# Sparse Retrieval (BM25)
+# ============================================
+sparse_retrieval:
+  enabled: true
+  top_k: 10
+  bm25_k1: 1.5
+  bm25_b: 0.75
+
+# ============================================
+# Hybrid Retrieval
+# ============================================
+hybrid_retrieval:
+  enabled: true
+  dense_weight: 0.7
+  sparse_weight: 0.3
+  fusion_method: "rrf"  # rrf (reciprocal rank fusion), linear, weighted
+  
+  # RRF Settings
+  rrf:
+    k: 60
+    
+# ============================================
+# Reranking
+# ============================================
+reranking:
+  enabled: true
+  top_k_before_rerank: 20
+  top_k_after_rerank: 5
+  score_threshold: 0.3
+
+# ============================================
+# Query Router
+# ============================================
+query_router:
+  enabled: true
+  
+  # Query classification
+  classify_query: true
+  query_types:
+    - "text_only"
+    - "image_required"
+    - "table_required"
+    - "multi_modal"
+    
+  # Routing rules
+  text_only_threshold: 0.7
+  image_required_keywords: ["image", "picture", "diagram", "chart", "graph", "visual", "figure", "photo"]
+  table_required_keywords: ["table", "data", "statistics", "comparison", "rows", "columns"]
+
+# ============================================
+# Metadata Filtering
+# ============================================
+metadata_filtering:
+  enabled: true
+  
+  # Available filters
+  filters:
+    - "document_type"  # pdf, image, video, audio
+    - "page_number"
+    - "section"
+    - "date"
+    - "source"
+    
+# ============================================
+# Context Window Management
+# ============================================
+context:
+  max_context_length: 4000  # tokens
+  context_truncation: "smart"  # smart, beginning, end
+  
+  # Context formatting
+  include_metadata: true
+  include_source: true
+  include_page_numbers: true
+  
+# ============================================
+# Performance Settings
+# ============================================
+performance:
+  batch_size: 32
+  num_workers: 4
+  cache_results: true
+  cache_ttl: 3600  # 1 hour

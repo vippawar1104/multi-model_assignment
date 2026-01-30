@@ -1,0 +1,155 @@
+# ============================================
+# Generation Configuration
+# ============================================
+
+# ============================================
+# Prompt Templates
+# ============================================
+prompts:
+  # System prompt
+  system_prompt: |
+    You are an expert AI assistant specialized in answering questions based on multi-modal documents.
+    You have access to text, images, tables, and other content from the documents.
+    
+    Guidelines:
+    - Provide accurate, concise answers based ONLY on the provided context
+    - If the answer is not in the context, say "I don't have enough information to answer this question"
+    - When referencing images or tables, cite them explicitly
+    - Be precise and cite page numbers when available
+    - If multiple sources support your answer, mention them
+  
+  # Question-answering prompt
+  qa_prompt: |
+    Context Information:
+    {context}
+    
+    Question: {question}
+    
+    Based on the context provided above, please answer the question.
+    If the context includes images, tables, or other non-text elements, reference them in your answer.
+    Provide a clear, concise, and accurate response.
+    
+    Answer:
+  
+  # Multi-modal prompt (with images)
+  multimodal_prompt: |
+    You have access to both textual and visual information from documents.
+    
+    Text Context:
+    {text_context}
+    
+    Image Descriptions:
+    {image_context}
+    
+    Question: {question}
+    
+    Please provide a comprehensive answer using both text and image information.
+    Reference specific images when they support your answer.
+    
+    Answer:
+  
+  # With sources prompt
+  qa_with_sources_prompt: |
+    Context:
+    {context}
+    
+    Question: {question}
+    
+    Provide a detailed answer and cite your sources.
+    
+    Answer:
+    
+    Sources:
+
+# ============================================
+# Generation Parameters
+# ============================================
+generation:
+  temperature: 0.1
+  max_tokens: 2048
+  top_p: 0.9
+  top_k: 40
+  frequency_penalty: 0.0
+  presence_penalty: 0.0
+  
+  # Streaming
+  stream: false
+  
+  # Stop sequences
+  stop_sequences: ["\n\nQuestion:", "\n\nContext:"]
+
+# ============================================
+# Context Formatting
+# ============================================
+context_formatting:
+  # Maximum context tokens
+  max_context_tokens: 3000
+  
+  # Chunk separator
+  chunk_separator: "\n\n---\n\n"
+  
+  # Include metadata in context
+  include_metadata: true
+  metadata_format: "[Source: {source} | Page: {page}]"
+  
+  # Image context formatting
+  image_prefix: "📷 Image Description: "
+  table_prefix: "📊 Table: "
+  
+  # Prioritization
+  prioritize_recent: false
+  prioritize_high_score: true
+
+# ============================================
+# Response Post-Processing
+# ============================================
+post_processing:
+  # Remove extra whitespace
+  clean_whitespace: true
+  
+  # Add citations
+  add_citations: true
+  citation_format: "[{page_number}]"
+  
+  # Fact checking
+  verify_factuality: false
+  
+  # Response validation
+  min_response_length: 10
+  max_response_length: 2000
+
+# ============================================
+# Fallback Strategies
+# ============================================
+fallback:
+  # If no context found
+  no_context_response: "I don't have any relevant information in the provided documents to answer this question."
+  
+  # If low confidence
+  low_confidence_threshold: 0.3
+  low_confidence_response: "I found some potentially relevant information, but I'm not confident in the answer. Here's what I found:\n{answer}\n\nPlease verify this information."
+  
+  # Retry settings
+  max_retries: 3
+  retry_delay: 1  # seconds
+
+# ============================================
+# Multi-Turn Conversation (Optional)
+# ============================================
+conversation:
+  enabled: false
+  max_history: 5
+  history_format: "User: {question}\nAssistant: {answer}"
+
+# ============================================
+# Safety & Moderation
+# ============================================
+safety:
+  # Content filtering
+  filter_harmful_content: true
+  
+  # PII detection
+  detect_pii: false
+  
+  # Toxicity check
+  toxicity_threshold: 0.8

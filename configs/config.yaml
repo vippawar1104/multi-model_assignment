@@ -1,0 +1,92 @@
+# ============================================
+# Multi-Modal RAG QA System - Main Configuration
+# ============================================
+
+project:
+  name: "multi-modal-rag-qa"
+  version: "1.0.0"
+  description: "Multi-Modal Retrieval Augmented Generation QA System"
+
+# ============================================
+# Paths Configuration
+# ============================================
+paths:
+  data_dir: "data"
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  embeddings: "data/embeddings"
+  vector_store: "data/vector_store"
+  models: "models"
+  logs: "logs"
+  
+  # Processed data subdirectories
+  text_dir: "data/processed/text"
+  images_dir: "data/processed/images"
+  tables_dir: "data/processed/tables"
+  audio_dir: "data/processed/audio"
+  video_dir: "data/processed/video"
+
+# ============================================
+# Logging Configuration
+# ============================================
+logging:
+  level: "INFO"
+  format: "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan> - <level>{message}</level>"
+  rotation: "100 MB"
+  retention: "30 days"
+  log_file: "logs/app.log"
+
+# ============================================
+# Data Ingestion Settings
+# ============================================
+ingestion:
+  # PDF Settings
+  pdf:
+    dpi: 300
+    image_format: "PNG"
+    extract_images: true
+    extract_tables: true
+    min_image_size: 100  # pixels
+    
+  # Video Settings
+  video:
+    frame_extraction_rate: 1  # frames per second
+    extract_audio: true
+    video_formats: [".mp4", ".avi", ".mov", ".mkv"]
+    
+  # Audio Settings
+  audio:
+    whisper_model: "base"  # tiny, base, small, medium, large
+    language: "en"
+    audio_formats: [".mp3", ".wav", ".m4a", ".flac"]
+
+# ============================================
+# Preprocessing Settings
+# ============================================
+preprocessing:
+  # Text Chunking
+  text:
+    chunk_size: 512
+    chunk_overlap: 50
+    separators: ["\n\n", "\n", ". ", " ", ""]
+    
+  # Image Processing
+  image:
+    resize_max_dimension: 1024
+    generate_captions: true
+    perform_ocr: true
+    ocr_engine: "easyocr"  # tesseract or easyocr
+    
+  # Table Processing
+  table:
+    preserve_structure: true
+    max_columns: 10
+    convert_to_markdown: true
+
+# ============================================
+# Cache Settings
+# ============================================
+cache:
+  enabled: true
+  cache_dir: ".cache"
+  ttl: 86400  # 24 hours in seconds
