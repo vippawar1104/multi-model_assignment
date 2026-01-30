@@ -1,10 +1,10 @@
-# 🚀 Multi-Modal RAG QA System
+# Multi-Modal RAG QA System
 
-**Status**: ✅ **ALL 8 PHASES COMPLETE - PRODUCTION READY**
+**Status**: ALL 8 PHASES COMPLETE - PRODUCTION READY
 
-A comprehensive **Multi-Modal Retrieval Augmented Generation (RAG)** system for question answering over documents containing text, images, tables, charts, audio, and video content.
+A comprehensive Multi-Modal Retrieval Augmented Generation (RAG) system for question answering over documents containing text, images, tables, charts, audio, and video content.
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Features](#features)
 - [Architecture](#architecture)
@@ -17,33 +17,33 @@ A comprehensive **Multi-Modal Retrieval Augmented Generation (RAG)** system for 
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
 
-## ✨ Features
+## Features
 
 ### Multi-Modal Data Ingestion
-- 📄 **PDF Processing**: Extract text, images, tables, and charts
-- 🎥 **Video Processing**: Frame extraction and audio transcription
-- 🎵 **Audio Processing**: Speech-to-text with Whisper
-- 🖼️ **Image Processing**: OCR, caption generation, and visual analysis
+- PDF Processing: Extract text, images, tables, and charts
+- Video Processing: Frame extraction and audio transcription
+- Audio Processing: Speech-to-text with Whisper
+- Image Processing: OCR, caption generation, and visual analysis
 
 ### Advanced Retrieval
-- 🔍 **Hybrid Retrieval**: Combines dense (semantic) and sparse (BM25) search
-- 🎯 **Smart Query Routing**: Automatically routes queries to appropriate retrievers
-- 🏆 **Reranking**: Cross-encoder reranking for improved relevance
-- 📊 **Metadata Filtering**: Filter by document type, page, section, etc.
+- Hybrid Retrieval: Combines dense (semantic) and sparse (BM25) search
+- Smart Query Routing: Automatically routes queries to appropriate retrievers
+- Reranking: Cross-encoder reranking for improved relevance
+- Metadata Filtering: Filter by document type, page, section, etc.
 
 ### Intelligent Generation
-- 🤖 **Multiple LLM Support**: OpenAI GPT-4, Groq Llama, Ollama (local)
-- 💬 **Context-Aware Responses**: Leverages multi-modal context
-- 📝 **Source Attribution**: Cites sources and page numbers
-- 🔄 **Multi-Turn Conversations**: Maintains conversation history
+- Multiple LLM Support: OpenAI GPT-4, Groq Llama, Ollama (local)
+- Context-Aware Responses: Leverages multi-modal context
+- Source Attribution: Cites sources and page numbers
+- Multi-Turn Conversations: Maintains conversation history
 
 ### Evaluation & Metrics
-- 📈 **RAGAS Integration**: Automated evaluation with RAGAS framework
-- 🎯 **Custom Metrics**: Precision, Recall, F1, Answer Relevancy
-- 📊 **Benchmark Dataset**: Comprehensive test suite
-- 📉 **Performance Tracking**: Monitor and optimize system performance
+- RAGAS Integration: Automated evaluation with RAGAS framework
+- Custom Metrics: Precision, Recall, F1, Answer Relevancy
+- Benchmark Dataset: Comprehensive test suite
+- Performance Tracking: Monitor and optimize system performance
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────┐
@@ -99,7 +99,7 @@ A comprehensive **Multi-Modal Retrieval Augmented Generation (RAG)** system for 
 └─────────────────┘
 ```
 
-## 🔧 Installation
+## Installation
 
 ### Prerequisites
 - Python 3.9 or higher
@@ -142,7 +142,7 @@ cp .env.example .env
 python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Process Documents
 ```python
@@ -205,7 +205,7 @@ uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 streamlit run app.py
 ```
 
-## 📖 Usage
+## Usage
 
 ### Command Line Interface
 
@@ -254,7 +254,7 @@ curl -X POST "http://localhost:8000/query" \
   -d '{"question": "What is discussed in the document?"}'
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 Configuration files are located in the `configs/` directory:
 
@@ -265,7 +265,7 @@ Configuration files are located in the `configs/` directory:
 
 See individual config files for detailed options.
 
-## 📊 Evaluation
+## Evaluation
 
 ### Run Evaluation
 
@@ -291,7 +291,7 @@ dataset.create_from_documents("data/processed")
 dataset.save("data/benchmark.json")
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 multi-model_assignment/
@@ -313,7 +313,7 @@ multi-model_assignment/
 └── requirements.txt             # Dependencies
 ```
 
-## 🧪 Testing
+## Testing
 
 Run tests:
 ```bash
@@ -325,7 +325,7 @@ Run specific test:
 pytest tests/test_retrieval.py -v
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please:
 
@@ -335,21 +335,17 @@ Contributions are welcome! Please:
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - RAGAS for evaluation framework
 - LangChain for LLM orchestration
 - ChromaDB for vector storage
 - HuggingFace for models and embeddings
 
-## 📧 Contact
+## Contact
 
 For questions or issues, please open an issue on GitHub.
-
----
-
-**Built with ❤️ for the Multi-Modal RAG Assignment**

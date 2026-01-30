@@ -429,7 +429,7 @@ with col2:
 st.divider()
 st.markdown("""
 <div style='text-align: center; color: #666;'>
-    <p>🤖 Multi-Modal RAG QA System | Built with Streamlit | Powered by Groq/OpenAI</p>
-    <p><small>All 8 Phases Complete ✅ | Production Ready</small></p>
+    <p>Multi-Modal RAG QA System | Built with Streamlit | Powered by Groq/OpenAI</p>
+    <p><small>All 8 Phases Complete | Production Ready</small></p>
 </div>
 """, unsafe_allow_html=True)
