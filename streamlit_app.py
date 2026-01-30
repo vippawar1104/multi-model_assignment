@@ -169,7 +169,7 @@ Answer:"""
         return f"❌ Error: {str(e)}", 0
 
 # Main UI
-st.markdown('<p class="main-header">🤖 Multi-Modal RAG QA System</p>', unsafe_allow_html=True)
+st.markdown('<p class="main-header">Multi-Modal RAG QA System</p>', unsafe_allow_html=True)
 st.markdown("### Intelligent Document Question Answering with Multi-Modal Support")
 
 # Sidebar
@@ -245,7 +245,7 @@ with st.sidebar:
     **Content Types**:
     - 📝 Text chunks
     - 📊 Tables
-    - 🖼️ Images (OCR)
+    - 🖼️ Images (with OCR extraction)
     
     **Total Pages**: 72
     """)
@@ -287,7 +287,7 @@ with col1:
     
     col_search, col_clear = st.columns([3, 1])
     with col_search:
-        search_button = st.button("🔍 Search & Answer", type="primary", use_container_width=True)
+        search_button = st.button("Search & Answer", type="primary", use_container_width=True)
     with col_clear:
         if st.button("Clear", use_container_width=True):
             st.session_state.current_query = ''
