@@ -12,9 +12,18 @@ from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
 import pickle
+import networkx as nx
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent))
+
+# Import KG retriever
+try:
+    from src.knowledge_graph.kg_retriever import KGRetriever
+    KG_AVAILABLE = True
+except ImportError:
+    KG_AVAILABLE = False
+    print("⚠️ Knowledge Graph module not available")
 
 # Load environment variables from .env file
 load_dotenv()
@@ -95,6 +104,23 @@ def load_processed_chunks():
                 return data
             return data.get('chunks', [])
     return []
+
+# Load knowledge graph
+@st.cache_resource
+def load_knowledge_graph():
+    """Load pre-built knowledge graph."""
+    kg_file = "data/knowledge_graph/kg.pkl"
+    if os.path.exists(kg_file) and KG_AVAILABLE:
+        try:
+            with open(kg_file, 'rb') as f:
+                graph = pickle.load(f)
+            retriever = KGRetriever(graph)
+            print(f"✅ Knowledge Graph loaded: {graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges")
+            return graph, retriever
+        except Exception as e:
+            print(f"⚠️ Error loading KG: {e}")
+            return None, None
+    return None, None
 
 # Load knowledge graph
 @st.cache_resource
@@ -246,6 +272,16 @@ with st.sidebar:
         help="Select your LLM provider"
     )
     
+    # Knowledge Graph toggle
+    if KG_AVAILABLE:
+        use_kg = st.checkbox(
+            "Use Knowledge Graph",
+            value=st.session_state.use_kg,
+            help="Enhance retrieval with knowledge graph facts"
+        )
+        st.session_state.use_kg = use_kg
+    
+    # Top-k selection
     # Top-k selection
     top_k = st.slider(
         "Number of chunks to retrieve",
@@ -253,15 +289,6 @@ with st.sidebar:
         max_value=15,
         value=5,
         help="More chunks = more context but slower"
-    )
-    
-    # Knowledge Graph toggle
-    st.checkbox(
-        "Use Knowledge Graph",
-        value=st.session_state.use_kg,
-        key="kg_toggle",
-        help="Augment answers with facts from knowledge graph",
-        on_change=lambda: setattr(st.session_state, 'use_kg', st.session_state.kg_toggle)
     )
     
     st.divider()
