@@ -282,7 +282,6 @@ with st.sidebar:
         st.session_state.use_kg = use_kg
     
     # Top-k selection
-    # Top-k selection
     top_k = st.slider(
         "Number of chunks to retrieve",
         min_value=3,
