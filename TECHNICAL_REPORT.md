@@ -1,7 +1,7 @@
 # Multi-Modal RAG QA System - Technical Report
 
-**Author**: [Your Name]  
-**Date**: [Current Date]  
+**Author**: Vipul Pawar
+**Date**: 31st Jan 2026
 **Project**: Multi-Modal Document Intelligence with RAG
 
 ---
